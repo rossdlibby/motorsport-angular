@@ -1,15 +1,15 @@
 'use strict';
 
-angular.module('myApp.drivers', ['ngRoute'])
+angular.module('myApp.drivers', ['ngRoute']).
 
-.config(['$routeProvider', function($routeProvider) {
+config(['$routeProvider', function($routeProvider) {
 	$routeProvider.when('/drivers', {
 		templateUrl: 'drivers/drivers.html',
 		controller: 'DriversCtrl'
 	});
-}])
+}]).
 
-.controller('DriversCtrl', function($scope, ergastAPIservice) {
+controller('DriversCtrl', function($scope, ergastAPIservice) {
 	$scope.nameFilter = null;
 	$scope.driversList = [];
 	$scope.searchFilter = function(driver) {
@@ -21,28 +21,18 @@ angular.module('myApp.drivers', ['ngRoute'])
 		// Dig into the response to get the relevant data
 		$scope.driversList = response.MRData.StandingsTable.StandingsLists[0].DriverStandings;
 	});
-	$scope.driversList = [
-		{
-			Driver: {
-				givenName:	'Sebastian',
-				familyName:	'Vettel'
-			},
-			points: 322,
-			nationality: 'German',
-			Constructors: [
-				{name: 'Red Bull'}
-			]
-		},
-		{
-			Driver: {
-				givenName:	'Fernando',
-				familyName:	'Alonso'
-			},
-			points: 207,
-			nationality: 'Spanish',
-			Constructors: [
-				{name: 'Ferrari'}
-			]
-		},
-	];
+}).
+
+controller('DriverCtrl', function($scope, $routeParams, ergastAPIservice) {
+	$scope.id = $routeParams.id;
+	$scope.races = [];
+	$scope.driver = null;
+
+	ergastAPIservice.getDriverDetails($scope.id).success(function(response) {
+		$scope.driver = response.MRData.StandingsTable.StandingsLists[0].DriverStandings[0];
+	});
+
+	ergastAPIservice.getDriverRaces($scope.id).success(function(response) {
+		$scope.races = response.MRData.RaceTable.Races;
+	});
 });
